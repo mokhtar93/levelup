@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+	<script>
+		window.addEventListener('load', renderForm);
+		var f = document.createElement("form");
+		f.setAttribute('method', "post");
+
+		function renderForm() {
+			jQuery.ajax({
+				type: "GET",
+				url: "https://levelup-assessment-backend-ddmwdsdlta.now.sh/api/getFormSchema",
+				success: function (data, textStatus) {
+					console.log(data);
+					Object.keys(data).forEach(function (key) {
+						var i = document.createElement("input"); //input element, text
+						i.setAttribute('type', data[key]['type']);
+						i.setAttribute('value', data[key]['value']);
+						i.setAttribute('class', "form");
+						i.setAttribute('name', key);
+						f.appendChild(i);
+						var y = document.createElement("label");
+						y.innerHTML = key;
+						f.appendChild(y);
+						if (data[key]['type'] != 'hidden') {
+							document.body.appendChild(y);
+						}
+						if (data[key]['type'] == 'submit') {
+							i.setAttribute('onclick', 'submitform();');
+						}
+						if (data[key]['type'] == 'checkbox') {
+							i.setAttribute('onclick', 'change();');
+							i.setAttribute('id', 'checkbox');
+
+						}
+						document.body.appendChild(i);
+					});
+				},
+				error: function () {
+					alertBox(
+						"Error: There might be an error in your Internet Connection . Please refresh the page and ty again !",
+						'error');
+				}
+			});
+		}
+
+		function change() {
+			var input = document.getElementById("checkbox").value;
+			if (input === 'true') {
+				document.getElementById("checkbox").value = false;
+
+			} else {
+				document.getElementById("checkbox").value = true;
+
+			}
+
+
+
+		}
+
+		function submitform() {
+
+			var data = {};
+			jQuery('.form').each(function (i) {
+				data[jQuery(this).attr('name')] = jQuery(this).val();
+			});
+			var myJSON = JSON.stringify(data);
+			console.log(myJSON);
+
+			jQuery.ajax({
+				type: "POST",
+				url: "https://levelup-assessment-backend-ddmwdsdlta.now.sh/api/submission",
+				data: myJSON,
+				dataType: "json",
+				contentType: "application/json; charset=utf-8",
+				success: function (result) {
+					alert(result.msg); // result is an object which is created from the returned JSON
+					console.log(result);
+				},
+				error: function (result) {
+					alert(result.responseText);
+					console.log(result.responseText);
+
+				}
+			});
+
+
+		}
+	</script>
+</head>
+
+<body>
+
+
+
+
+</body>
+
+</html>
+<style>
+	input.form {
+		height: 25px;
+		margin: 10px;
+	}
+
+	button {
+		color: green;
+	}
+</style>
